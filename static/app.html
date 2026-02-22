@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STL Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #22223b;
+      --border: #2a2a4a;
+      --accent: #6c63ff;
+      --accent2: #48cae4;
+      --text: #e0e0e0;
+      --muted: #888;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nav-brand { font-weight: 700; font-size: 1.1rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-spacer { flex: 1; }
+    .nav-tabs { display: flex; gap: 0.25rem; }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .tab-btn.active { background: var(--accent); color: #fff; }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .user-chip img { width: 28px; height: 28px; border-radius: 50%; }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── Panels ── */
+    .panel { display: none; flex: 1; overflow: hidden; }
+    .panel.active { display: flex; }
+
+    /* ── Files panel ── */
+    #panel-files {
+      flex-direction: column;
+    }
+    .files-toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .breadcrumb { display: flex; gap: 0.25rem; align-items: center; font-size: 0.85rem; flex: 1; }
+    .breadcrumb span { color: var(--muted); cursor: pointer; }
+    .breadcrumb span:hover { color: var(--accent); }
+    .breadcrumb .sep { color: var(--border); }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-outline {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); }
+    .btn-danger { background: var(--danger); }
+
+    .files-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      align-content: start;
+    }
+    .file-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+      position: relative;
+    }
+    .file-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .file-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .file-card .name { font-size: 0.8rem; word-break: break-word; color: var(--text); }
+    .file-card .meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; }
+    .file-card .actions { display: none; position: absolute; bottom: 0.5rem; right: 0.5rem; gap: 0.25rem; }
+    .file-card:hover .actions { display: flex; }
+    .icon-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 26px; height: 26px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .icon-btn:hover { background: var(--accent); }
+    .empty-state { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 4rem; }
+    .empty-state .big { font-size: 4rem; margin-bottom: 1rem; }
+
+    /* Upload area */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s;
+      margin: 1.5rem;
+    }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Chat panel ── */
+    #panel-chat {
+      flex-direction: column;
+    }
+    .chat-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .model-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .msg {
+      max-width: 720px;
+      padding: 0.85rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .msg.user { background: var(--accent); align-self: flex-end; color: #fff; }
+    .msg.assistant { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; }
+    .msg .model-tag { font-size: 0.7rem; opacity: 0.6; margin-bottom: 0.3rem; }
+    .chat-input-row {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      resize: none;
+      font-family: inherit;
+    }
+    .chat-input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Terminal panel ── */
+    #panel-terminal {
+      flex-direction: column;
+    }
+    .term-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .term-output {
+      flex: 1;
+      background: #0a0a0f;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding: 1rem;
+      overflow-y: auto;
+      color: #c0f0c0;
+    }
+    .term-line { margin-bottom: 0.1rem; }
+    .term-line.cmd { color: #48cae4; }
+    .term-line.err { color: #e74c3c; }
+    .term-input-row {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .term-prompt { color: var(--accent2); font-family: monospace; font-size: 0.9rem; }
+    .term-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #c0f0c0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+    }
+    .term-input:focus { outline: none; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      max-width: 300px;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-width: 320px;
+    }
+    .modal h3 { margin-bottom: 1rem; }
+    .modal input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .modal input:focus { outline: none; border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <span class="nav-brand">🖨️ STL Hub</span>
+  <div class="nav-spacer"></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('files')">📁 Files</button>
+    <button class="tab-btn" onclick="switchTab('chat')">🤖 AI Chat</button>
+    <button class="tab-btn" onclick="switchTab('terminal')">💻 Terminal</button>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="user-chip">
+    <img id="userPic" src="" alt="" style="display:none"/>
+    <span id="userName"></span>
+  </div>
+  <form action="/auth/logout" method="post">
+    <button class="logout-btn" type="submit">Sign out</button>
+  </form>
+</nav>
+
+<!-- ── Files Panel ── -->
+<div id="panel-files" class="panel active">
+  <div class="files-toolbar">
+    <div class="breadcrumb" id="breadcrumb">
+      <span onclick="navigate('')">🏠 Home</span>
+    </div>
+    <button class="btn btn-outline" onclick="openMkdirModal()">📂 New Folder</button>
+    <button class="btn" onclick="document.getElementById('fileInput').click()">⬆️ Upload</button>
+    <input type="file" id="fileInput" multiple style="display:none" onchange="uploadFiles(this.files)" accept=".stl,.gcode,.3mf,.obj,.step,.stp" />
+  </div>
+
+  <div class="upload-zone" id="uploadZone"
+    ondragover="event.preventDefault();this.classList.add('drag-over')"
+    ondragleave="this.classList.remove('drag-over')"
+    ondrop="handleDrop(event)"
+    onclick="document.getElementById('fileInput').click()">
+    ⬆️ Drop STL / 3D print files here, or click to upload
+  </div>
+
+  <div class="files-grid" id="filesGrid"></div>
+</div>
+
+<!-- ── Chat Panel ── -->
+<div id="panel-chat" class="panel">
+  <div class="chat-header">
+    <strong>AI Assistant</strong>
+    <select class="model-select" id="modelSelect">
+      <option value="claude">Claude Sonnet 4.6 (Anthropic)</option>
+      <option value="claude-opus">Claude Opus 4.6 (Anthropic)</option>
+      <option value="gpt">GPT-4o (OpenAI)</option>
+      <option value="gpt-mini">GPT-4o Mini (OpenAI)</option>
+    </select>
+    <button class="btn btn-outline" style="margin-left:auto" onclick="clearChat()">Clear</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg assistant">
+      <div class="model-tag">STL Hub Assistant</div>
+      👋 Hi! I'm your AI assistant. Ask me anything about 3D printing, STL files, slicer settings, or this project. Choose your preferred AI model from the dropdown above.
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask about 3D printing, slicing, settings..."
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+      oninput="autoResize(this)"></textarea>
+    <button class="btn" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<!-- ── Terminal Panel ── -->
+<div id="panel-terminal" class="panel">
+  <div class="term-header">
+    💻 Terminal &nbsp;·&nbsp; Commands run in the STL files directory &nbsp;·&nbsp; 15s timeout per command
+  </div>
+  <div class="term-output" id="termOutput">
+    <div class="term-line">STL Hub Terminal — type a command below and press Enter</div>
+    <div class="term-line">Working directory: /srv/stl-hub/files</div>
+    <div class="term-line">&nbsp;</div>
+  </div>
+  <div class="term-input-row">
+    <span class="term-prompt">$&nbsp;</span>
+    <input class="term-input" id="termInput" placeholder="ls -la" autocomplete="off"
+      onkeydown="if(event.key==='Enter') runCmd()" />
+  </div>
+</div>
+
+<!-- Mkdir Modal -->
+<div class="modal-overlay" id="mkdirModal">
+  <div class="modal">
+    <h3>📂 New Folder</h3>
+    <input type="text" id="mkdirName" placeholder="Folder name" onkeydown="if(event.key==='Enter') confirmMkdir()" />
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeMkdirModal()">Cancel</button>
+      <button class="btn" onclick="confirmMkdir()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  // ── State ──
+  let currentPath = '';
+  let chatHistory = [];
+  const termHistory = [];
+  let termHistIdx = -1;
+
+  // ── Init ──
+  loadFiles('');
+
+  // ── Tab switching ──
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ── Toast ──
+  function toast(msg, type='success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    setTimeout(() => el.className = '', 3000);
+  }
+
+  // ── File Browser ──
+  async function loadFiles(path) {
+    currentPath = path;
+    try {
+      const resp = await fetch(`/api/files?path=${encodeURIComponent(path)}`, {credentials:'include'});
+      if (resp.status === 401) { location.href = '/'; return; }
+      const data = await resp.json();
+
+      // Update user chip
+      document.getElementById('userName').textContent = data.user.name;
+      if (data.user.picture) {
+        const img = document.getElementById('userPic');
+        img.src = data.user.picture;
+        img.style.display = '';
+      }
+
+      updateBreadcrumb(path);
+      renderFiles(data.items);
+    } catch(e) {
+      toast('Failed to load files', 'error');
+    }
+  }
+
+  function navigate(path) { loadFiles(path); }
+
+  function updateBreadcrumb(path) {
+    const bc = document.getElementById('breadcrumb');
+    const parts = path ? path.split('/') : [];
+    let html = `<span onclick="navigate('')">🏠 Home</span>`;
+    let built = '';
+    for (const part of parts) {
+      built += (built ? '/' : '') + part;
+      const p = built;
+      html += `<span class="sep">/</span><span onclick="navigate('${p}')">${part}</span>`;
+    }
+    bc.innerHTML = html;
+  }
+
+  function fileIcon(item) {
+    if (item.is_dir) return '📁';
+    const ext = item.name.split('.').pop().toLowerCase();
+    const map = { stl:'🖨️', gcode:'⚙️', '3mf':'📦', obj:'🔷', step:'🔩', stp:'🔩' };
+    return map[ext] || '📄';
+  }
+
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1048576).toFixed(1) + ' MB';
+  }
+
+  function renderFiles(items) {
+    const grid = document.getElementById('filesGrid');
+    if (!items.length) {
+      grid.innerHTML = '<div class="empty-state"><div class="big">📭</div>No files here yet.<br/>Upload some STL files to get started!</div>';
+      return;
+    }
+    grid.innerHTML = items.map(item => `
+      <div class="file-card" ondblclick="${item.is_dir ? `navigate('${item.path}')` : `downloadFile('${item.path}')`}">
+        <div class="icon">${fileIcon(item)}</div>
+        <div class="name">${item.name}</div>
+        <div class="meta">${item.is_dir ? 'Folder' : fmtSize(item.size)}<br/>${item.modified}</div>
+        <div class="actions">
+          ${item.is_dir ? '' : `<button class="icon-btn" onclick="event.stopPropagation();downloadFile('${item.path}')" title="Download">⬇️</button>`}
+          <button class="icon-btn" onclick="event.stopPropagation();deleteItem('${item.path}','${item.name}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function uploadFiles(files) {
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('path', currentPath);
+      try {
+        const resp = await fetch('/api/files/upload', {method:'POST', body:fd, credentials:'include'});
+        const data = await resp.json();
+        if (resp.ok) toast(`✅ Uploaded ${file.name}`);
+        else toast(data.detail || 'Upload failed', 'error');
+      } catch(e) { toast('Upload error', 'error'); }
+    }
+    loadFiles(currentPath);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.remove('drag-over');
+    uploadFiles(e.dataTransfer.files);
+  }
+
+  async function downloadFile(path) {
+    window.location.href = `/api/files/download?path=${encodeURIComponent(path)}`;
+  }
+
+  async function deleteItem(path, name) {
+    if (!confirm(`Delete "${name}"?`)) return;
+    try {
+      const resp = await fetch(`/api/files/delete?path=${encodeURIComponent(path)}`, {method:'DELETE', credentials:'include'});
+      const data = await resp.json();
+      if (resp.ok) { toast(`🗑️ Deleted ${name}`); loadFiles(currentPath); }
+      else toast(data.detail || 'Delete failed', 'error');
+    } catch(e) { toast('Delete error', 'error'); }
+  }
+
+  function openMkdirModal() {
+    document.getElementById('mkdirModal').classList.add('open');
+    document.getElementById('mkdirName').value = '';
+    document.getElementById('mkdirName').focus();
+  }
+  function closeMkdirModal() { document.getElementById('mkdirModal').classList.remove('open'); }
+  async function confirmMkdir() {
+    const name = document.getElementById('mkdirName').value.trim();
+    if (!name) return;
+    const fd = new FormData();
+    fd.append('path', currentPath);
+    fd.append('name', name);
+    const resp = await fetch('/api/files/mkdir', {method:'POST', body:fd, credentials:'include'});
+    const data = await resp.json();
+    if (resp.ok) { toast(`📂 Created ${name}`); closeMkdirModal(); loadFiles(currentPath); }
+    else toast(data.detail || 'Failed', 'error');
+  }
+
+  // ── AI Chat ──
+  async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const prompt = input.value.trim();
+    if (!prompt) return;
+    input.value = '';
+    input.style.height = '';
+
+    const model = document.getElementById('modelSelect').value;
+    appendMsg('user', prompt);
+    chatHistory.push({role:'user', content: prompt});
+
+    const thinking = appendMsg('assistant', '⏳ Thinking...', true);
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({model, messages: chatHistory.slice(0,-1), prompt})
+      });
+      const data = await resp.json();
+      thinking.remove();
+      if (resp.ok) {
+        appendMsg('assistant', data.reply, false, data.model);
+        chatHistory.push({role:'assistant', content: data.reply});
+      } else {
+        appendMsg('assistant', `❌ ${data.detail || 'Error'}`, false, '', true);
+      }
+    } catch(e) {
+      thinking.remove();
+      appendMsg('assistant', '❌ Network error', false, '', true);
+    }
+  }
+
+  function appendMsg(role, text, temp=false, modelLabel='', isErr=false) {
+    const box = document.getElementById('chatMessages');
+    const el = document.createElement('div');
+    el.className = `msg ${role}`;
+    if (modelLabel) el.innerHTML = `<div class="model-tag">${modelLabel}</div>${text}`;
+    else el.textContent = text;
+    if (isErr) el.style.borderColor = 'var(--danger)';
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
+    return el;
+  }
+
+  function clearChat() {
+    chatHistory = [];
+    document.getElementById('chatMessages').innerHTML = `
+      <div class="msg assistant">
+        <div class="model-tag">STL Hub Assistant</div>
+        👋 Chat cleared. What would you like to know?
+      </div>`;
+  }
+
+  function autoResize(el) {
+    el.style.height = '';
+    el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+  }
+
+  // ── Terminal ──
+  async function runCmd() {
+    const input = document.getElementById('termInput');
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    input.value = '';
+
+    termHistory.unshift(cmd);
+    termHistIdx = -1;
+
+    const out = document.getElementById('termOutput');
+    const addLine = (text, cls='') => {
+      const div = document.createElement('div');
+      div.className = `term-line ${cls}`;
+      div.textContent = text;
+      out.appendChild(div);
+    };
+
+    addLine(`$ ${cmd}`, 'cmd');
+
+    // Client-side clear
+    if (cmd === 'clear') { out.innerHTML = ''; return; }
+
+    try {
+      const resp = await fetch('/api/terminal/exec', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({cmd})
+      });
+      const data = await resp.json();
+      const lines = (data.output || '').split('\n');
+      lines.forEach(l => addLine(l, data.exit_code !== 0 ? 'err' : ''));
+    } catch(e) {
+      addLine('Network error', 'err');
+    }
+    out.scrollTop = out.scrollHeight;
+  }
+
+  // Terminal history with arrow keys
+  document.getElementById('termInput').addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp') {
+      termHistIdx = Math.min(termHistIdx + 1, termHistory.length - 1);
+      e.target.value = termHistory[termHistIdx] || '';
+    }
+    if (e.key === 'ArrowDown') {
+      termHistIdx = Math.max(termHistIdx - 1, -1);
+      e.target.value = termHistIdx >= 0 ? termHistory[termHistIdx] : '';
+    }
+  });
+</script>
+</body>
+</html>

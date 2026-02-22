@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STL Hub - 3D Print File Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero {
+      text-align: center;
+      padding: 2rem;
+      max-width: 520px;
+    }
+    .logo {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c63ff, #48cae4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: #888;
+      margin-bottom: 2.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .btn-google {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #fff;
+      color: #333;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-google:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .btn-google svg {
+      width: 22px;
+      height: 22px;
+    }
+    .features {
+      display: flex;
+      gap: 1rem;
+      margin-top: 3rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .feature {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 10px;
+      padding: 1rem;
+      width: 140px;
+      text-align: center;
+    }
+    .feature .icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .feature .label { font-size: 0.78rem; color: #aaa; }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.75rem;
+      color: #555;
+    }
+    footer a { color: #6c63ff; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="logo">🖨️</div>
+    <h1>STL Hub</h1>
+    <p class="subtitle">
+      Your shared 3D printing file library.<br/>
+      Upload, organize, and download STL files with AI assistance.
+    </p>
+
+    <a href="/auth/google" class="btn-google">
+      <svg viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.8 0 6.9 5.4 3 13.3l7.8 6C12.7 13 17.9 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.8-2.2 5.1-4.6 6.7l7.2 5.6c4.2-3.9 6.6-9.6 6.6-16.3z"/>
+        <path fill="#FBBC05" d="M10.8 28.7A14.5 14.5 0 019.5 24c0-1.6.3-3.2.8-4.7L2.5 13.3A23.9 23.9 0 000 24c0 3.8.9 7.4 2.5 10.6l8.3-5.9z"/>
+        <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2.2 1.5-5 2.4-8.7 2.4-6.1 0-11.3-3.5-13.2-8.3l-8.3 5.9C6.9 42.6 14.8 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Sign in with Google
+    </a>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">📁</div>
+        <div class="label">File Browser</div>
+      </div>
+      <div class="feature">
+        <div class="icon">⬆️</div>
+        <div class="label">Upload STLs</div>
+      </div>
+      <div class="feature">
+        <div class="icon">🤖</div>
+        <div class="label">AI Assistant</div>
+      </div>
+      <div class="feature">
+        <div class="icon">💻</div>
+        <div class="label">Terminal</div>
+      </div>
+    </div>
+
+    <footer>
+      <a href="https://github.com/kkers42/FTP_Server" target="_blank">Open Source on GitHub</a>
+      &nbsp;·&nbsp; Built for learning
+    </footer>
+  </div>
+</body>
+</html>
