@@ -1,16 +1,54 @@
 services:
+  traefik:
+    image: traefik:v3.1
+    container_name: stl-hub-traefik
+    restart: unless-stopped
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.le.acme.email=bgkegger34@gmail.com
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - le_certs:/letsencrypt
+    networks:
+      - web
+
   stl-hub:
     build: .
     container_name: stl-hub
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     env_file:
       - .env
     volumes:
       - stl_files:/srv/stl-hub/files
     environment:
       - FTP_ROOT=/srv/stl-hub/files
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      # Domain 1: 3dprintdudes.tech
+      - traefik.http.routers.stl-tech.rule=Host(`3dprintdudes.tech`) || Host(`www.3dprintdudes.tech`)
+      - traefik.http.routers.stl-tech.entrypoints=websecure
+      - traefik.http.routers.stl-tech.tls.certresolver=le
+      - traefik.http.routers.stl-tech.service=stl-svc
+      # Domain 2: 3dprintdudes.io
+      - traefik.http.routers.stl-io.rule=Host(`3dprintdudes.io`) || Host(`www.3dprintdudes.io`)
+      - traefik.http.routers.stl-io.entrypoints=websecure
+      - traefik.http.routers.stl-io.tls.certresolver=le
+      - traefik.http.routers.stl-io.service=stl-svc
+      # Service
+      - traefik.http.services.stl-svc.loadbalancer.server.port=8080
 
   ftp:
     image: fauria/vsftpd
@@ -27,7 +65,15 @@ services:
       - PASV_MAX_PORT=40100
     volumes:
       - stl_files:/home/vsftpd/stlhub
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
 
 volumes:
   stl_files:
     name: stl_hub_files
+  le_certs:
+    name: stl_hub_certs
