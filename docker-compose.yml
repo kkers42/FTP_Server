@@ -1,0 +1,33 @@
+services:
+  stl-hub:
+    build: .
+    container_name: stl-hub
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - stl_files:/srv/stl-hub/files
+    environment:
+      - FTP_ROOT=/srv/stl-hub/files
+
+  ftp:
+    image: fauria/vsftpd
+    container_name: stl-hub-ftp
+    restart: unless-stopped
+    ports:
+      - "21:21"
+      - "40000-40100:40000-40100"
+    environment:
+      - FTP_USER=stlhub
+      - FTP_PASS=${FTP_PASS:-changeme123}
+      - PASV_ADDRESS=187.77.218.25
+      - PASV_MIN_PORT=40000
+      - PASV_MAX_PORT=40100
+    volumes:
+      - stl_files:/home/vsftpd/stlhub
+
+volumes:
+  stl_files:
+    name: stl_hub_files
