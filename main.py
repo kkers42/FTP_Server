@@ -78,14 +78,13 @@ def optional_user(request: Request) -> Optional[dict]:
 
 
 # ── File helpers ──────────────────────────────────────────────────────────────
-def safe_path(user_email: str, relative: str = "") -> Path:
-    """Return a safe absolute path within the user's directory."""
-    user_dir = FTP_ROOT / user_email.replace("@", "_at_").replace(".", "_")
-    user_dir.mkdir(parents=True, exist_ok=True)
+def safe_path(relative: str = "") -> Path:
+    """Return a safe absolute path within the shared files root."""
+    FTP_ROOT.mkdir(parents=True, exist_ok=True)
     if not relative or relative in (".", "/", ""):
-        return user_dir
-    resolved = (user_dir / relative).resolve()
-    if not str(resolved).startswith(str(user_dir.resolve())):
+        return FTP_ROOT
+    resolved = (FTP_ROOT / relative).resolve()
+    if not str(resolved).startswith(str(FTP_ROOT.resolve())):
         raise HTTPException(status_code=400, detail="Invalid path")
     return resolved
 
@@ -183,8 +182,8 @@ async def files_page(request: Request):
 @app.get("/api/files")
 async def list_files(request: Request, path: str = ""):
     user = get_current_user(request)
-    base = safe_path(user["email"])
-    target = safe_path(user["email"], path)
+    base = safe_path()
+    target = safe_path(path)
 
     if not target.exists():
         raise HTTPException(status_code=404, detail="Path not found")
@@ -200,7 +199,7 @@ async def list_files(request: Request, path: str = ""):
 @app.post("/api/files/upload")
 async def upload_file(request: Request, path: str = Form(""), file: UploadFile = File(...)):
     user = get_current_user(request)
-    dest = safe_path(user["email"], path) / file.filename
+    dest = safe_path(path) / file.filename
     async with aiofiles.open(dest, "wb") as out:
         content = await file.read()
         await out.write(content)
@@ -209,8 +208,8 @@ async def upload_file(request: Request, path: str = Form(""), file: UploadFile =
 
 @app.get("/api/files/download")
 async def download_file(request: Request, path: str):
-    user = get_current_user(request)
-    target = safe_path(user["email"], path)
+    get_current_user(request)
+    target = safe_path(path)
     if not target.is_file():
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(target, filename=target.name)
@@ -218,8 +217,8 @@ async def download_file(request: Request, path: str):
 
 @app.delete("/api/files/delete")
 async def delete_file(request: Request, path: str):
-    user = get_current_user(request)
-    target = safe_path(user["email"], path)
+    get_current_user(request)
+    target = safe_path(path)
     if not target.exists():
         raise HTTPException(status_code=404, detail="Not found")
     if target.is_dir():
@@ -231,8 +230,8 @@ async def delete_file(request: Request, path: str):
 
 @app.post("/api/files/mkdir")
 async def make_dir(request: Request, path: str = Form(...), name: str = Form(...)):
-    user = get_current_user(request)
-    new_dir = safe_path(user["email"], path) / name
+    get_current_user(request)
+    new_dir = safe_path(path) / name
     new_dir.mkdir(parents=True, exist_ok=True)
     return {"message": f"Created folder {name}"}
 
