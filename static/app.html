@@ -325,6 +325,7 @@
     <img id="userPic" src="" alt="" style="display:none"/>
     <span id="userName"></span>
   </div>
+  <a href="https://3dprintdudes.io/plm" target="_blank" rel="noopener" class="logout-btn" style="text-decoration:none;margin-right:0.25rem;">🔩 PLM</a>
   <form action="/auth/logout" method="post">
     <button class="logout-btn" type="submit">Sign out</button>
   </form>
@@ -494,10 +495,10 @@
       return;
     }
     grid.innerHTML = items.map(item => `
-      <div class="file-card" ondblclick="${item.is_dir ? `navigate('${item.path}')` : `downloadFile('${item.path}')`}">
+      <div class="file-card" onclick="${item.is_dir ? `navigate('${item.path}')` : `downloadFile('${item.path}')`}">
         <div class="icon">${fileIcon(item)}</div>
         <div class="name">${item.name}</div>
-        <div class="meta">${item.is_dir ? 'Folder' : fmtSize(item.size)}<br/>${item.modified}</div>
+        <div class="meta">${item.is_dir ? 'Folder — tap to open' : fmtSize(item.size)}<br/>${item.modified}</div>
         <div class="actions">
           ${item.is_dir ? '' : `<button class="icon-btn" onclick="event.stopPropagation();downloadFile('${item.path}')" title="Download">⬇️</button>`}
           <button class="icon-btn" onclick="event.stopPropagation();deleteItem('${item.path}','${item.name}')" title="Delete">🗑️</button>
